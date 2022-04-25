@@ -1,2 +1,2 @@
 # tsanalyzer
-tsanalyzer Project by intern
+tsanalyzer Project by karuna
