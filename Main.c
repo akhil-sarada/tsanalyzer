@@ -1,72 +1,46 @@
-//Attachments area
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>
-//print Header information
-void printHeader(int buffer)
-{
-printf("%02X\n",buffer);
-}
+
+void printHeader(int buffer);
+void swap_Endians(unsigned int buffer);
 
 
-void main()
+/*myFile - filename to store the file*/
+int main( int argc, char *argv[] )  
 {
-/*a filename to store the file*/
-FILE *myfile;
-FILE *output;
-//i to check how many times bytes are read,o to read and print the buffer
-int i=0;
-unsigned int buffer=0;
-int o, count=0;
-char filename[50];
-    //printf("Enter the Filename : ");
-    scanf("%s",&filename);
-    myfile=fopen(filename,"rb");
-do{
-    o=fread(&buffer, 1, 1, myfile);
-    printf("%d: ",o); 
-    if(o!=1)
-    break;  
-    if (i<4)
-    {
-    
-    printf("%d: ",i);  
-    i++;
-	}
+	FILE *myFile = fopen(argv[1], "rb");
+	int i=0;
+    unsigned int buffer=0;
+    int o, count=0;
+	
+	o=fread(&buffer,sizeof(buffer),1, myFile);
+	printf ("%d: ",o);
+	printf("%d: ",i); 
 	printHeader(buffer);
-	count++;
-  }
-   while(count<4);
-   if (buffer && 0xff000000)
-   {
-	   printf("Sync byte: 8\n");
-   }
-   if (buffer && 0x800000)
-   {
-	   printf("Transport Error Indicator: 1\n");
-   }
-   if (buffer && 0x400000)
-   {
-	   printf("Payload Unit Start Indicator: 1\n ");
-   }
-   if (buffer && 0x200000)
-   {
-	   printf("Transport Priority: 1\n");
-   }
-   if (0x1fff00 << 1)
-   {
-	   printf("Packet Identifier: 13\n");
-   }
-   if (buffer && 0xc0)
-   {
-	   printf("Transport Scrambling Control: 2\n");
-   }
-   if (buffer && 0x30)
-   {
-	   printf("Adaptation Field Control: 2\n");
-   }
-   if (buffer && 0xf)
-   {
-	   printf("Continuity Counter: 4\n");
-   }
+	
+    
+    unsigned int result1;
+    result1	= swap_Endians(buffer);
+	printf("big Endian to little: %02x\n",result1);
+	return result1;
 }
+
+//Prints Header information        
+void printHeader(int buffer)    
+{
+	printf("%02X\n",buffer);
+}
+
+//converting big endians into little endians
+void swap_Endians(unsigned int buffer)
+{
+	int byte0,byte1,byte2,byte3,result1;
+	byte0 = (buffer & 0x000000FF)>>0;
+	byte1 = (buffer & 0x0000FF00)>>8;
+	byte2 = (buffer & 0x00FF0000)>>16;
+	byte3 = (buffer & 0xFF000000)>>24;
+	result1 = ((byte0<<24) | (byte1<<16) | (byte2<<8) | (byte3<<0));
+}
+
+EOF();
