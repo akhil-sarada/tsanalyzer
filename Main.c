@@ -1,46 +1,46 @@
 #include<stdio.h>
-#include<string.h>
-#include<stdlib.h>
-
 void printHeader(int buffer);
-void swap_Endians(unsigned int buffer);
-
+unsigned int swap_endianess(unsigned int data);
 
 /*myFile - filename to store the file*/
 int main( int argc, char *argv[] )  
 {
 	FILE *myFile = fopen(argv[1], "rb");
 	int i=0;
-    unsigned int buffer=0;
+    unsigned int data=0;
     int o, count=0;
-	
-	o=fread(&buffer,sizeof(buffer),1, myFile);
+	o=fread(&data,sizeof(data),1, myFile);
 	printf ("%d: ",o);
-	printf("%d: ",i); 
-	printHeader(buffer);
-	
-    
-    unsigned int result1;
-    result1	= swap_Endians(buffer);
-	printf("big Endian to little: %02x\n",result1);
-	return result1;
+	printf("%d: ",i);
+	printf("%02X\n",data);
+    unsigned int testPattern=0x1E2D0147;
+    printf("0x%08X\n",testPattern);
+    unsigned int reversedPattern = swap_endianess(testPattern);
+    printf("0x%08X\n",reversedPattern);
+    printHeader(reversedPattern);
+	fclose(myFile);
 }
 
 //Prints Header information        
-void printHeader(int buffer)    
+void printHeader(int data)    
 {
-	printf("%02X\n",buffer);
+	printf("SyncByte 0x%02X\n", ((data & 0xFF000000) >>24));
+    printf("TEI 0x%02X\n", ((data & 0x800000)>>23));
+    printf("PUSI 0x%02X\n", ((data & 0x400000)>>22));
+    printf("Transport Priority 0x%02X\n", ((data & 0x200000)>>21));
+    printf("PID 0x%04X, %d\n", ((data & 0x1FFF00)>>8),((data & 0x1FFF00)>>8));
+    printf("TSC 0x%02X\n", ((data & 0xC0)>>6));
+    printf("Adaptation Field Control 0x%02X\n", ((data & 0x30)>>4));
+    printf("Continuity counter 0x%d\n", (data & 0xf));
 }
 
-//converting big endians into little endians
-void swap_Endians(unsigned int buffer)
+//converting endianess
+unsigned int swap_endianess(unsigned int data)
 {
-	int byte0,byte1,byte2,byte3,result1;
-	byte0 = (buffer & 0x000000FF)>>0;
-	byte1 = (buffer & 0x0000FF00)>>8;
-	byte2 = (buffer & 0x00FF0000)>>16;
-	byte3 = (buffer & 0xFF000000)>>24;
-	result1 = ((byte0<<24) | (byte1<<16) | (byte2<<8) | (byte3<<0));
+    char byte0 = (data & 0x000000FF) >> 0;
+    char byte1 = (data & 0x0000FF00) >> 8;
+    char byte2 = (data & 0x00FF0000) >> 16;
+    char byte3 = (data & 0xFF000000) >> 24;
+    return ((byte0<<24)|(byte1<<16)|(byte2<<8)|(byte3<<0)); 
 }
 
-EOF();
